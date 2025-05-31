@@ -6,4 +6,5 @@ import io.app.dto.AuthResponse;
 public interface AuthService {
     public ApiResponse login(String email);
     public AuthResponse validateOtp(String email, String otp);
+    public AuthResponse loginWithoutOtp(String email);
 }

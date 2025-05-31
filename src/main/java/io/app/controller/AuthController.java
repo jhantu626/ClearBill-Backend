@@ -26,4 +26,8 @@ public class AuthController {
         return service.validateOtp(email,otp);
     }
 
+    @PostMapping("/login/google/{email}")
+    public AuthResponse loginWithGoogle(@PathVariable("email") String email){
+        return service.loginWithoutOtp(email);
+    }
 }

@@ -87,6 +87,27 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    @Override
+    public AuthResponse loginWithoutOtp(String email) {
+        boolean isUserExist=repository.existsByEmail(email);
+        String token="";
+        if (isUserExist){
+            User user=repository.findByEmail(email)
+                    .orElseThrow(()->new ResourceNotFoundException("Invalid"));
+            token=jwtService.generateToken(user);
+        }else {
+            User user=new User();
+            user.setEmail(email);
+            User savedUSer=repository.save(user);
+            token=jwtService.generateToken(savedUSer);
+        }
+        return AuthResponse.builder()
+                .status(true)
+                .token(token)
+                .build();
+    }
+
+
     private String generateOtp(){
         String otp="";
         Random random=new Random();
