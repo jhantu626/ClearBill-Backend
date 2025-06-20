@@ -5,6 +5,7 @@ import io.app.dto.BusinessDto;
 import io.app.dto.UserDto;
 import io.app.exception.ResourceNotFoundException;
 import io.app.exception.UnAuthrizeException;
+import io.app.model.Business;
 import io.app.model.Role;
 import io.app.model.User;
 import io.app.repository.UserRepository;
@@ -14,7 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -117,6 +121,26 @@ public class UserServiceImpl implements UserService {
                 .message("Successfully Added User")
                 .status(true)
                 .build();
+    }
+
+    @Override
+    public List<UserDto> getAllUserOfBusiness(String token) {
+        User user=repository.findByEmail(extractEmail(token))
+                .orElseThrow(()->new ResourceNotFoundException("Invalid User"));
+        if (user.getBusiness()==null){
+            return new ArrayList<>();
+        }
+        List<UserDto> result=repository.findByBusiness(user.getBusiness())
+                .stream().parallel().map((userDto)->{
+                    UserDto dto=new UserDto();
+                    dto.setId(userDto.getId());
+                    dto.setName(userDto.getName());
+                    dto.setPhone(userDto.getPhone());
+                    dto.setEmail(userDto.getEmail());
+                    dto.setRole(userDto.getRole());
+                    return dto;
+                }).collect(Collectors.toList());
+        return result;
     }
 
 
