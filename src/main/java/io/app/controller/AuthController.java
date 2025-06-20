@@ -2,10 +2,13 @@ package io.app.controller;
 
 import io.app.dto.ApiResponse;
 import io.app.dto.AuthResponse;
+import io.app.model.User;
 import io.app.service.impl.AuthServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController

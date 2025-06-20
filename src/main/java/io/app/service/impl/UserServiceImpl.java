@@ -1,0 +1,129 @@
+package io.app.service.impl;
+
+import io.app.dto.ApiResponse;
+import io.app.dto.BusinessDto;
+import io.app.dto.UserDto;
+import io.app.exception.ResourceNotFoundException;
+import io.app.exception.UnAuthrizeException;
+import io.app.model.Role;
+import io.app.model.User;
+import io.app.repository.UserRepository;
+import io.app.service.JwtService;
+import io.app.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Random;
+
+@Service
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService {
+    private final UserRepository repository;
+    private final JwtService jwtService;
+    private final MailServiceImpl mailService;
+
+    @Override
+    public UserDto profile(String authToken) {
+        authToken=authToken.substring(7);
+        String email=jwtService.extractUsername(authToken);
+        User user=repository.findByEmail(email)
+                .orElseThrow(()->new ResourceNotFoundException("Invalid Credentials"));
+        UserDto userDto=UserDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .phone(user.getPhone())
+                .role(user.getRole())
+                .build();
+        if (user.getBusiness()!=null){
+            BusinessDto businessDto=new BusinessDto();
+            businessDto.setId(user.getBusiness().getId());
+            businessDto.setName(user.getBusiness().getName());
+            businessDto.setGstNo(user.getBusiness().getGstNo());
+            businessDto.setLogo(user.getBusiness().getLogo());
+            businessDto.setAddress(user.getBusiness().getAddress());
+            businessDto.setStateCode(user.getBusiness().getStateCode());
+            businessDto.setCreatedAt(user.getBusiness().getCreatedAt());
+            businessDto.setUpdatedAt(user.getBusiness().getUpdatedAt());
+            userDto.setBusiness(businessDto);
+        }
+
+        return userDto;
+    }
+
+    @Override
+    public ApiResponse generateOtp(String token, String email) {
+        User user=repository.findByEmail(extractEmail(token))
+                .orElseThrow(()->new ResourceNotFoundException("Invalid Credentials"));
+        if (user.getEmail().equals(email.trim())){
+            throw new UnAuthrizeException("You Can't add yourself as a Staff");
+        }
+        if (user.getRole()!=Role.ADMIN){
+            throw new UnAuthrizeException("UnAuthorize Request");
+        }
+        if (user.getBusiness()==null){
+            throw new UnAuthrizeException("Business Not found");
+        }
+        String otp="";
+        Random random=new Random();
+        for (int i=0;i<4;i++){
+            otp+=random.nextInt(10);
+        }
+        String mailBody="Hi,\n" +
+                "\n" +
+                "You’ve been invited to join ClearBill for the business .\n" +
+                "\n" +
+                "To complete the setup and confirm your identity, please use the following One-Time Password (OTP):\n" +
+                "\n" +
+                "\uD83D\uDD10 OTP: ["+otp+"]\n" +
+                "\n" +
+                "This OTP is valid for the next 10 minutes.\n" +
+                "If you were not expecting this request or believe it was sent in error, please ignore this email.\n" +
+                "\n" +
+                "Thank you,\n" +
+                "The ClearBill Team";
+        mailService.sendMail(email,"You're Being Added to ClearBill – Your OTP is "+otp,mailBody);
+        return ApiResponse.builder()
+                .message(otp)
+                .status(true)
+                .build();
+    }
+
+    @Override
+    public ApiResponse addUser(String token, UserDto userDto) {
+        token=token.substring(7);
+        String email=jwtService.extractUsername(token);
+        User user=repository.findByEmail(email)
+                .orElseThrow(()->new ResourceNotFoundException("Invalid Credentials"));
+        if (user.getRole()!= Role.ADMIN){
+            throw new UnAuthrizeException("You don't have access to create");
+        }
+        boolean isUserExist=repository.existsByEmail(userDto.getEmail().trim());
+        User newUser=new User();
+        if (isUserExist){
+            User dbUser=repository.findByEmail(userDto.getEmail()).get();
+            newUser.setId(dbUser.getId());
+        }
+        newUser.setEmail(userDto.getEmail());
+        newUser.setName(userDto.getName());
+        newUser.setPhone(userDto.getPhone());
+        newUser.setRole(Role.STAFF);
+        newUser.setBusiness(user.getBusiness());
+        newUser.setCreatedAt(LocalDateTime.now());
+
+        repository.save(newUser);
+        return ApiResponse.builder()
+                .message("Successfully Added User")
+                .status(true)
+                .build();
+    }
+
+
+    private String extractEmail(String token){
+        token=token.substring(7);
+        return jwtService.extractUsername(token);
+    }
+
+
+}

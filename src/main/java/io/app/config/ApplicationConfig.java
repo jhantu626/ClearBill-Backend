@@ -1,5 +1,6 @@
 package io.app.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.app.exception.ResourceNotFoundException;
 import io.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

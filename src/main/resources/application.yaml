@@ -23,10 +23,20 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: jhantubala626@gmail.com
-    password: wehd nyfp oqrb ymnq
+    password: gnjv oeqk gbss opki
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+file:
+  logo: ./upload/logo
+
+

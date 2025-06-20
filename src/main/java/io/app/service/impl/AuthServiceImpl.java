@@ -8,6 +8,7 @@ import io.app.repository.UserRepository;
 import io.app.service.AuthService;
 import io.app.service.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -89,6 +92,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse loginWithoutOtp(String email) {
+        email=email.trim();
         boolean isUserExist=repository.existsByEmail(email);
         String token="";
         if (isUserExist){
@@ -107,13 +111,17 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
-
     private String generateOtp(){
-        String otp="";
-        Random random=new Random();
-        for (int i=0;i<4;i++){
-            otp+=random.nextInt(1,9);
-        }
-        return otp;
+//        String otp="";
+        Supplier<String> otpGenerator=()->{
+            String otp="";
+            Random random=new Random();
+            for (int i=0;i<4;i++){
+                otp+=random.nextInt(1,9);
+            }
+            return otp;
+        };
+
+        return otpGenerator.get();
     }
 }

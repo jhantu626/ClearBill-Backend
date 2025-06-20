@@ -17,4 +17,22 @@ public class GlobalExceptionHandler {
                 .status(false)
                 .build();
     }
+
+    @ExceptionHandler(UnAuthrizeException.class)
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+    public ApiResponse hadnleUnAuthrizeException(UnAuthrizeException exception){
+        return ApiResponse.builder()
+                .message(exception.getMessage())
+                .status(false)
+                .build();
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiResponse handleDuplicateResourceException(DuplicateResourceException exception){
+        return ApiResponse.builder()
+                .message(exception.getMessage())
+                .status(false)
+                .build();
+    }
 }

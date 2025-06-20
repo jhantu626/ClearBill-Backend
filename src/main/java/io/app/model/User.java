@@ -1,11 +1,9 @@
 package io.app.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Fetch;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,18 +23,20 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @Data
+@ToString
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String name;
+    @Column(unique = true)
     private String email;
     private String phone;
     private String otp;
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime otpExpiration;
     private Role role;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "business_id")
     private Business business;
     private LocalDateTime createdAt;
@@ -62,6 +62,12 @@ public class User implements UserDetails {
     @PrePersist
     public void prePresist(){
         this.role=Role.ADMIN;
+        this.createdAt=LocalDateTime.now();
         log.info("The role has bees setted to the user {}",this.role.name());
+    }
+
+    @PreUpdate
+    public void preUpdate(){
+        this.updatedAt=LocalDateTime.now();
     }
 }
