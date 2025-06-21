@@ -39,7 +39,9 @@ public class User implements UserDetails {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "business_id")
     private Business business;
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
     @Override
@@ -61,8 +63,9 @@ public class User implements UserDetails {
 
     @PrePersist
     public void prePresist(){
-        this.role=Role.ADMIN;
+//        this.role=Role.ADMIN;
         this.createdAt=LocalDateTime.now();
+        this.updatedAt=LocalDateTime.now();
         log.info("The role has bees setted to the user {}",this.role.name());
     }
 

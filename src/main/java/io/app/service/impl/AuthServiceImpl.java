@@ -3,11 +3,13 @@ package io.app.service.impl;
 import io.app.dto.ApiResponse;
 import io.app.dto.AuthResponse;
 import io.app.exception.ResourceNotFoundException;
+import io.app.model.Role;
 import io.app.model.User;
 import io.app.repository.UserRepository;
 import io.app.service.AuthService;
 import io.app.service.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
@@ -62,7 +64,10 @@ public class AuthServiceImpl implements AuthService {
             mailService.sendMail(email,subject,mailBody);
             User user=User.builder()
                     .email(email)
+                    .role(Role.ADMIN)
                     .otp(otp)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
                     .otpExpiration(LocalDateTime.now().plusMinutes(2))
                     .build();
 
@@ -102,6 +107,9 @@ public class AuthServiceImpl implements AuthService {
         }else {
             User user=new User();
             user.setEmail(email);
+            user.setRole(Role.ADMIN);
+            user.setCreatedAt(LocalDateTime.now());
+            user.setUpdatedAt(LocalDateTime.now());
             User savedUSer=repository.save(user);
             token=jwtService.generateToken(savedUSer);
         }

@@ -39,6 +39,8 @@ public class UserServiceImpl implements UserService {
                 .name(user.getName())
                 .phone(user.getPhone())
                 .role(user.getRole())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
                 .build();
         if (user.getBusiness()!=null){
             BusinessDto businessDto=new BusinessDto();
@@ -115,6 +117,7 @@ public class UserServiceImpl implements UserService {
         newUser.setRole(Role.STAFF);
         newUser.setBusiness(user.getBusiness());
         newUser.setCreatedAt(LocalDateTime.now());
+        newUser.setUpdatedAt(LocalDateTime.now());
 
         repository.save(newUser);
         return ApiResponse.builder()
@@ -138,6 +141,8 @@ public class UserServiceImpl implements UserService {
                     dto.setPhone(userDto.getPhone());
                     dto.setEmail(userDto.getEmail());
                     dto.setRole(userDto.getRole());
+                    dto.setCreatedAt(userDto.getCreatedAt());
+                    dto.setUpdatedAt(userDto.getUpdatedAt());
                     return dto;
                 }).collect(Collectors.toList());
         return result;
