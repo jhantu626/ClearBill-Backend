@@ -4,6 +4,7 @@ import io.app.dto.ApiResponse;
 import io.app.dto.UserDto;
 import io.app.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +44,22 @@ public class UserController {
             @RequestHeader("Authorization") String token
     ){
         return ResponseEntity.ok(service.getAllUserOfBusiness(token));
+    }
+
+    /*
+    * Update User Api
+    * Endpoint: /api/v1/user
+    * Method: PUT
+    */
+    @PutMapping
+    public ResponseEntity<ApiResponse> updateUSer(@RequestBody UserDto userDto){
+        return ResponseEntity.ok(service.updateUser(userDto));
+    }
+
+    @GetMapping("update-user/verify/{email}")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse verifyOtp(@PathVariable("email") String email){
+        return service.generateOtp(email);
     }
 
 }

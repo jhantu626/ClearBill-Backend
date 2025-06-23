@@ -96,6 +96,34 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+
+    @Override
+    public ApiResponse generateOtp(String email) {
+        String otp="";
+        Random random=new Random();
+        for (int i=0;i<4;i++){
+            otp+=random.nextInt(10);
+        }
+        String mailBody="Hi,\n" +
+                "\n" +
+                "You’ve been invited to join ClearBill for the business .\n" +
+                "\n" +
+                "To complete the setup and confirm your identity, please use the following One-Time Password (OTP):\n" +
+                "\n" +
+                "\uD83D\uDD10 OTP: ["+otp+"]\n" +
+                "\n" +
+                "This OTP is valid for the next 10 minutes.\n" +
+                "If you were not expecting this request or believe it was sent in error, please ignore this email.\n" +
+                "\n" +
+                "Thank you,\n" +
+                "The ClearBill Team";
+        mailService.sendMail(email,"You're Being Added to ClearBill – Your OTP is "+otp,mailBody);
+        return ApiResponse.builder()
+                .message(otp)
+                .status(true)
+                .build();
+    }
+
     @Override
     public ApiResponse addUser(String token, UserDto userDto) {
         token=token.substring(7);
@@ -146,6 +174,19 @@ public class UserServiceImpl implements UserService {
                     return dto;
                 }).collect(Collectors.toList());
         return result;
+    }
+
+    @Override
+    public ApiResponse updateUser(UserDto userDto) {
+        User user=repository.findByEmail(userDto.getEmail())
+                .orElseThrow(()->new ResourceNotFoundException("UnAuthorize Access"));
+        user.setName(userDto.getName());
+        user.setPhone(userDto.getPhone());
+        repository.save(user);
+        return ApiResponse.builder()
+                .status(true)
+                .message("Updated Successfully")
+                .build();
     }
 
 
