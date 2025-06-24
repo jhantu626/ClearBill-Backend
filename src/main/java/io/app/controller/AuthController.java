@@ -2,6 +2,7 @@ package io.app.controller;
 
 import io.app.dto.ApiResponse;
 import io.app.dto.AuthResponse;
+import io.app.exception.UnAuthrizeException;
 import io.app.model.User;
 import io.app.service.impl.AuthServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,9 @@ public class AuthController {
 
     @PostMapping("/login/google/{email}")
     public AuthResponse loginWithGoogle(@PathVariable("email") String email){
+        if (email.trim().isEmpty() || email==null){
+            throw new UnAuthrizeException("Sorry invalid email");
+        }
         return service.loginWithoutOtp(email);
     }
 }
