@@ -10,4 +10,6 @@ import java.util.List;
 public interface ProductService {
     public ApiResponse createProduct(String token, ProductDto productDto, MultipartFile image) throws IOException;
     public List<ProductDto> getProducts(String token);
+    public ApiResponse updateProduct(ProductDto productDto);
+    public ApiResponse updateProduct(ProductDto productDto,MultipartFile image) throws IOException;
 }

@@ -45,5 +45,11 @@ public class FileServiceImpl implements FileService {
         return new FileInputStream(productImagePath+File.separator+fileName);
     }
 
+    @Override
+    public boolean deleteProductImage(String name) {
+        File file=new File(productImagePath+ File.separator+name);
+        return file.delete();
+    }
+
 
 }

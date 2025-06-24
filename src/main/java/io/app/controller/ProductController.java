@@ -41,4 +41,28 @@ public class ProductController {
     public ResponseEntity<List<ProductDto>> getAllProducts(@RequestHeader("Authorization") String authToken){
         return ResponseEntity.ok(service.getProducts(authToken));
     }
+
+    /*
+    * Update Product Without Image
+    * Endpoint: /api/v1/product
+    * Method: PUT
+    */
+    @PutMapping
+    public ResponseEntity<ApiResponse> updateProductWithoutImage(@RequestBody ProductDto productDto){
+        return ResponseEntity.ok(service.updateProduct(productDto));
+    }
+
+    /*
+     * Update Product With Image
+     * Endpoint: /api/v1/product/image
+     * Method: PUT
+     */
+    @PutMapping("/image")
+    public ResponseEntity<ApiResponse> updateProduct(
+            @RequestParam("product") String product,
+            @RequestParam("image") MultipartFile image) throws IOException {
+        ObjectMapper objectMapper=new ObjectMapper();
+        ProductDto productDto=objectMapper.readValue(product,ProductDto.class);
+        return ResponseEntity.ok(service.updateProduct(productDto,image));
+    }
 }

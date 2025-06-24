@@ -85,6 +85,53 @@ public class ProductServiceImpl implements ProductService {
         }).collect(Collectors.toList());
     }
 
+    @Override
+    public ApiResponse updateProduct(ProductDto productDto) {
+        Product product=repository.findById(productDto.getId())
+                .orElseThrow(()->new ResourceNotFoundException("Invalid Product"));
+        product.setName(productDto.getName());
+        product.setDescription(productDto.getDescription());
+        product.setTaxable(productDto.getIsTaxable());
+        product.setHsnCode(productDto.getHsnCode());
+        product.setSGst(productDto.getSGst());
+        product.setCGst(productDto.getCGst());
+        product.setIGst(productDto.getIGst());
+        product.setDiscount(productDto.getDiscount());
+        product.setPrice(productDto.getPrice());
+        product.setUnitType(productDto.getUnitType());
+        repository.save(product);
+        return ApiResponse.builder()
+                .status(true)
+                .message("Updated Successfully")
+                .build();
+    }
+
+
+    @Override
+    public ApiResponse updateProduct(ProductDto productDto,MultipartFile image) throws IOException {
+        Product product=repository.findById(productDto.getId())
+                .orElseThrow(()->new ResourceNotFoundException("Invalid Product"));
+        if (fileService.deleteProductImage(product.getLogo())){
+            String logoName=fileService.uploadProductImage(image);
+            product.setLogo(logoName);
+        }
+        product.setName(productDto.getName());
+        product.setDescription(productDto.getDescription());
+        product.setTaxable(productDto.getIsTaxable());
+        product.setHsnCode(productDto.getHsnCode());
+        product.setSGst(productDto.getSGst());
+        product.setCGst(productDto.getCGst());
+        product.setIGst(productDto.getIGst());
+        product.setDiscount(productDto.getDiscount());
+        product.setPrice(productDto.getPrice());
+        product.setUnitType(productDto.getUnitType());
+        repository.save(product);
+        return ApiResponse.builder()
+                .status(true)
+                .message("Updated Successfully")
+                .build();
+    }
+
 
     private String extractUsername(String token){
         token=token.substring(7);
