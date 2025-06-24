@@ -11,4 +11,5 @@ import java.io.InputStream;
 public interface FileService {
     public InputStream getBusinessImage(String fileName) throws FileNotFoundException;
     public String uploadProductImage(MultipartFile file) throws IOException;
+    public InputStream serveProductImage(String fileName) throws FileNotFoundException;
 }

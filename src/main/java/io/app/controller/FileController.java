@@ -30,4 +30,13 @@ public class FileController {
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(image,response.getOutputStream());
     }
+
+    @GetMapping("/product/{name}")
+    public void serveProductImage(
+            @PathVariable("name") String name,
+            HttpServletResponse response) throws IOException {
+        InputStream image=service.serveProductImage(name);
+        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+        StreamUtils.copy(image,response.getOutputStream());
+    }
 }

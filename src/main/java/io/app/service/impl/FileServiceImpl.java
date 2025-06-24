@@ -40,5 +40,10 @@ public class FileServiceImpl implements FileService {
         return name;
     }
 
+    @Override
+    public InputStream serveProductImage(String fileName) throws FileNotFoundException {
+        return new FileInputStream(productImagePath+File.separator+fileName);
+    }
+
 
 }
