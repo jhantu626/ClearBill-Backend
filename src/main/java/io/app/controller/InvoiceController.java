@@ -1,11 +1,14 @@
 package io.app.controller;
 
 import io.app.dto.ApiResponse;
+import io.app.dto.InvoiceDto;
 import io.app.model.Customer;
+import io.app.model.Invoice;
 import io.app.model.InvoiceItem;
 import io.app.service.InvoiceService;
 import io.app.service.impl.InvoiceServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,9 +21,13 @@ public class InvoiceController {
 
 
     @PostMapping
-    public ApiResponse createInvoice(@RequestHeader("Authorization") String token,
-                                     @RequestBody List<InvoiceItem> items,
-                                     @RequestBody Customer customer){
-        return service.createInvoice(token,items,customer);
+    @ResponseStatus(HttpStatus.CREATED)
+    public InvoiceDto createInvoice(@RequestHeader("Authorization") String token,
+                                    @RequestBody List<InvoiceItem> items,
+                                    @RequestParam("customer-mobile") String customerNumber,
+                                    @RequestParam("customer-name") String customerName){
+        return service.createInvoice(token,items,Customer.builder()
+                .mobile(customerNumber)
+                .name(customerName).build());
     }
 }

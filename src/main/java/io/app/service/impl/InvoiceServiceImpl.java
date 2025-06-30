@@ -1,7 +1,9 @@
 package io.app.service.impl;
 
 import io.app.dto.ApiResponse;
+import io.app.dto.InvoiceDto;
 import io.app.exception.ResourceNotFoundException;
+import io.app.helper.Helper;
 import io.app.model.Business;
 import io.app.model.Customer;
 import io.app.model.Invoice;
@@ -27,10 +29,11 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final CustomerRepository customerRepository;
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final Helper helper;
 
 
     @Override
-    public ApiResponse createInvoice(String token, List<InvoiceItem> items, Customer customer) {
+    public InvoiceDto createInvoice(String token, List<InvoiceItem> items, Customer customer) {
         Optional<Customer> optionalCustomer=customerRepository.findByMobile(customer.getMobile());
         Customer customer1=null;
         if (optionalCustomer.isPresent()){
@@ -53,13 +56,13 @@ public class InvoiceServiceImpl implements InvoiceService {
         List<InvoiceItem> savedItems=itemsRepository.saveAll(items);
 
         for (InvoiceItem item:savedItems){
-            double discount=item.getPrice()*(item.getDiscount()/100);
+            double discount=(item.getPrice()*item.getQuantity())*(item.getDiscount()/100);
             totalDiscount+=discount;
-            totalSubAmount+=item.getPrice();
-            totalGst+=(item.getPrice()-discount)*item.getTotalGst()/100;
+            totalSubAmount+=item.getPrice()*item.getQuantity();
+            totalGst+=((item.getPrice()*item.getQuantity())-discount)*item.getTotalGst()/100;
         }
 
-        Invoice invoice=Invoice.builder()
+        Invoice saveInvoice=Invoice.builder()
                 .items(savedItems)
                 .subTotalAmount(totalSubAmount)
                 .totalDiscount(totalDiscount)
@@ -70,15 +73,27 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .business(business)
                 .build();
 
-
-        return ApiResponse.builder()
-                .message("Created Invoice Successfully")
-                .status(true)
+        Invoice invoice=repository.save(saveInvoice);
+        InvoiceDto result=InvoiceDto.builder()
+                .id(invoice.getId())
+                .business(helper.businessToDto(invoice.getBusiness()))
+                .createdAt(invoice.getCreatedAt())
+                .updatedAt(invoice.getUpdatedAt())
+                .customerGstNo(invoice.getCustomerGstNo())
+                .customerMobile(invoice.getCustomerMobile())
+                .customerName(invoice.getCustomerName())
+                .items(invoice.getItems())
+                .name(invoice.getName())
+                .subTotalAmount(invoice.getSubTotalAmount())
+                .totalAmount(invoice.getTotalAmount())
+                .totalDiscount(invoice.getTotalDiscount())
+                .totalGst(invoice.getTotalGst())
                 .build();
+        return result;
     }
 
 
     private String extractToken(String token){
-        return jwtService.extractUsername(token);
+        return jwtService.extractUsername(token.substring(7));
     }
 }

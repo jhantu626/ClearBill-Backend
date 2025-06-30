@@ -19,13 +19,14 @@ public class Invoice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String name="INV";
+    private String name;
     private double subTotalAmount;
     private double totalAmount;
     private double totalDiscount;
     private double totalGst;
     private String customerName;
     private String customerMobile;
+    private String customerGstNo;
     @ManyToOne
     @JoinColumn(name = "businessId")
     private Business business;
@@ -39,8 +40,9 @@ public class Invoice {
 
     @PrePersist
     public void preCreate(){
-            this.createdAt= LocalDateTime.now();
+        this.createdAt= LocalDateTime.now();
         this.updatedAt= LocalDateTime.now();
+        this.name="INV";
     }
 
     @PreUpdate
