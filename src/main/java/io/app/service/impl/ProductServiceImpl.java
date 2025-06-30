@@ -35,7 +35,7 @@ public class ProductServiceImpl implements ProductService {
         String imageName=fileService.uploadProductImage(image);
         Product newProduct=Product.builder()
                 .name(product.getName())
-                .description(product.getDescription())
+                .description(product.getDescription().trim())
                 .isTaxable(product.getIsTaxable()
                 )
                 .logo(imageName)
@@ -90,7 +90,7 @@ public class ProductServiceImpl implements ProductService {
         Product product=repository.findById(productDto.getId())
                 .orElseThrow(()->new ResourceNotFoundException("Invalid Product"));
         product.setName(productDto.getName());
-        product.setDescription(productDto.getDescription());
+        product.setDescription(productDto.getDescription().trim());
         product.setTaxable(productDto.getIsTaxable());
         product.setHsnCode(productDto.getHsnCode());
         product.setSGst(productDto.getSGst());
@@ -116,7 +116,7 @@ public class ProductServiceImpl implements ProductService {
             product.setLogo(logoName);
         }
         product.setName(productDto.getName());
-        product.setDescription(productDto.getDescription());
+        product.setDescription(productDto.getDescription().trim());
         product.setTaxable(productDto.getIsTaxable());
         product.setHsnCode(productDto.getHsnCode());
         product.setSGst(productDto.getSGst());
