@@ -30,4 +30,22 @@ public class InvoiceController {
                 .mobile(customerNumber)
                 .name(customerName).build());
     }
+
+
+    /*
+    * GET - INVOICE
+    * URI - `/api/v1/invoice?page=5&size=10`
+    * METHOD: [GET]
+    */
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<InvoiceDto> getInvoice(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(value = "page",required = false,defaultValue = "0") int page,
+            @RequestParam(value = "size",required = false,defaultValue = "5") int size){
+        return service.getInvoice(token,page,size);
+    }
+
+
+
 }
