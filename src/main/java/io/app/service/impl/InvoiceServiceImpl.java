@@ -38,11 +38,16 @@ public class InvoiceServiceImpl implements InvoiceService {
 
 
     @Override
-    public InvoiceDto createInvoice(String token, List<InvoiceItem> items, Customer customer) {
+    public InvoiceDto createInvoice(String token, List<InvoiceItem> items,
+                                    Customer customer) {
         Optional<Customer> optionalCustomer=customerRepository.findByMobile(customer.getMobile());
         Customer customer1=null;
         if (optionalCustomer.isPresent()){
             customer1=optionalCustomer.get();
+            if (!customer1.getName().equals(customer.getName())){
+                customer1.setName(customer.getName());
+                customer1=customerRepository.save(customer1);
+            }
         }else {
             customer1=Customer.builder()
                     .name(customer.getName())
