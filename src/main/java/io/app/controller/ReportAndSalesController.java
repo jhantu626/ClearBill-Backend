@@ -19,4 +19,10 @@ public class ReportAndSalesController {
             @RequestParam SalesOverViewType type){
         return service.generateSalesOverview(token,type);
     }
+
+    @GetMapping("/report")
+    public Map<?,?> businessReport(
+            @RequestHeader("Authorization") String token){
+        return service.getBusinessReportForMonth(token);
+    }
 }
