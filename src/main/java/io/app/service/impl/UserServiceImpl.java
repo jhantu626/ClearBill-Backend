@@ -13,6 +13,7 @@ import io.app.service.JwtService;
 import io.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -186,6 +187,30 @@ public class UserServiceImpl implements UserService {
         return ApiResponse.builder()
                 .status(true)
                 .message("Updated Successfully")
+                .build();
+    }
+
+    @Override
+    public ApiResponse removeBusiness(String token,long userID) {
+        Role role=repository.findRoleByEmail(extractEmail(token));
+        if (role==null){
+            throw new ResourceNotFoundException("Invalid Request");
+        }
+        if (role.name()!="ADMIN"){
+            throw new UnAuthrizeException("Only admin can remove and add user");
+        }
+        User user=repository.findById(userID)
+                .orElseThrow(()->new ResourceNotFoundException("User Not Found"));
+        if (user.getRole().name()=="ADMIN"){
+            throw new UnAuthrizeException("Sorry `ADMIN` can't remove himself");
+        }
+
+        user.setBusiness(null);
+        user.setRole(Role.ADMIN);
+        repository.save(user);
+        return ApiResponse.builder()
+                .status(true)
+                .message("Removed Successfully")
                 .build();
     }
 

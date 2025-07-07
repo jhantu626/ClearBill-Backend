@@ -1,6 +1,7 @@
 package io.app.repository;
 
 import io.app.model.Business;
+import io.app.model.Role;
 import io.app.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -32,4 +33,8 @@ public interface UserRepository extends JpaRepository<User,Long> {
     // Business Id By from user
     @Query(value = "SELECT u.business.id FROM User u WHERE u.email=:email")
     Optional<Long> findBusinessIdByEmail(@Param("email") String email);
+
+    @Query("SELECT u.role FROM User u WHERE u.email=:email")
+    Role findRoleByEmail(@Param("email") String email);
+
 }

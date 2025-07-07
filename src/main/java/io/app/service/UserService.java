@@ -12,4 +12,5 @@ public interface UserService {
     public ApiResponse addUser(String token,UserDto userDto);
     public List<UserDto> getAllUserOfBusiness(String token);
     public ApiResponse updateUser(UserDto userDto);
+    public ApiResponse removeBusiness(String token,long userId);
 }

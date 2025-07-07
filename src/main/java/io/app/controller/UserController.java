@@ -62,4 +62,11 @@ public class UserController {
         return service.generateOtp(email);
     }
 
+    @PutMapping("/business/remove-business/{id}")
+    public ResponseEntity<ApiResponse> removeBusiness(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("id") long userId){
+        return ResponseEntity.ok(service.removeBusiness(token,userId));
+    }
+
 }
