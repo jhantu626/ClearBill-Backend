@@ -25,6 +25,8 @@ public class Business {
     private String logo;
     @OneToMany(mappedBy = "business")
     private List<User> users=new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    private Subscription subscription;
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
     @Temporal(TemporalType.TIMESTAMP)
@@ -33,6 +35,7 @@ public class Business {
 
     @PrePersist
     private void preCreate(){
+        this.subscription=Subscription.STARTER;
         createdAt=LocalDateTime.now();
     }
 

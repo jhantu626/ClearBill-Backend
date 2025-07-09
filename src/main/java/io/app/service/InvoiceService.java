@@ -11,4 +11,6 @@ import java.util.List;
 public interface InvoiceService {
     InvoiceDto createInvoice(String token, List<InvoiceItem> items, Customer customer);
     List<InvoiceDto> getInvoice(String token,int page,int size);
+    long getCountOfInvoice(String token);
+    long getCountOfInvoice(long businessId);
 }

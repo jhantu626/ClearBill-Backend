@@ -17,4 +17,11 @@ import java.util.List;
 public interface InvoiceRepositoty extends JpaRepository<Invoice,Long> {
     Page<Invoice> findByBusiness(Business business, Pageable pageable);
     List<Invoice> findByBusinessAndCreatedAtBetween(Business business,LocalDateTime start,LocalDateTime end);
+
+    // COUNT INVOICES BY BUSINESS AND CREATED AT
+    @Query("SELECT COUNT(i) FROM Invoice i WHERE i.business.id=:businessId AND i.createdAt < :start and i.createdAt > :end")
+    long countByBusinessAndCreatedAt(@Param("businessId") long businessId,
+                                     @Param("start") LocalDateTime start,
+                                     @Param("end") LocalDateTime end);
+
 }

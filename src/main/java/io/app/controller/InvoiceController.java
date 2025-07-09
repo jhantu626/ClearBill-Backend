@@ -46,6 +46,9 @@ public class InvoiceController {
         return service.getInvoice(token,page,size);
     }
 
-
+    @GetMapping("/count")
+    public long countInvoices(@RequestHeader("Authorization") String token){
+        return service.getCountOfInvoice(token);
+    }
 
 }

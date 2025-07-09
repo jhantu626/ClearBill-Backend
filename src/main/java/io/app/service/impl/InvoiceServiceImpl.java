@@ -3,18 +3,14 @@ package io.app.service.impl;
 import io.app.dto.ApiResponse;
 import io.app.dto.InvoiceDto;
 import io.app.exception.ResourceNotFoundException;
+import io.app.exception.UnAuthrizeException;
 import io.app.helper.Helper;
-import io.app.model.Business;
-import io.app.model.Customer;
-import io.app.model.Invoice;
-import io.app.model.InvoiceItem;
-import io.app.repository.CustomerRepository;
-import io.app.repository.InvoiceItemsRepository;
-import io.app.repository.InvoiceRepositoty;
-import io.app.repository.UserRepository;
+import io.app.model.*;
+import io.app.repository.*;
 import io.app.service.InvoiceService;
 import io.app.service.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,12 +18,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepositoty repository;
     private final InvoiceItemsRepository itemsRepository;
@@ -35,11 +34,22 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final Helper helper;
+    private final BusinessRepository businessRepository;
 
 
     @Override
     public InvoiceDto createInvoice(String token, List<InvoiceItem> items,
                                     Customer customer) {
+        Business business=userRepository.findBusinessByEmail(extractToken(token))
+                .orElseThrow(()->new ResourceNotFoundException("Business Not Found!"));
+
+        long invoiceCount=getCountOfInvoice(business.getId());
+
+        if ((business.getSubscription()==Subscription.STARTER &&
+            invoiceCount>=100) || (business.getSubscription()==Subscription.PRO && invoiceCount>=1000)){
+            throw new UnAuthrizeException("Invoice limit exceeded");
+        }
+
         Optional<Customer> optionalCustomer=customerRepository.findByMobile(customer.getMobile());
         Customer customer1=null;
         if (optionalCustomer.isPresent()){
@@ -55,9 +65,6 @@ public class InvoiceServiceImpl implements InvoiceService {
                     .build();
             customer1=customerRepository.save(customer1);
         }
-
-        Business business=userRepository.findBusinessByEmail(extractToken(token))
-                .orElseThrow(()->new ResourceNotFoundException("Business Not Found!"));
 
         double totalSubAmount=0d;
         double totalGst=0d;
@@ -133,6 +140,26 @@ public class InvoiceServiceImpl implements InvoiceService {
 
 
         return result;
+    }
+
+    @Override
+    public long getCountOfInvoice(String token) {
+        long businessId=userRepository
+                .findBusinessIdByEmail(extractToken(token))
+                .orElseThrow(()->new ResourceNotFoundException("Business Not Found!"));
+        LocalDateTime start=LocalDateTime.now();
+        LocalDateTime end=LocalDate.now().atStartOfDay();
+        long count=repository.countByBusinessAndCreatedAt(businessId,start,end);
+        return count;
+    }
+
+    @Override
+    public long getCountOfInvoice(long id) {
+        LocalDateTime start=LocalDateTime.now();
+        LocalDateTime end=LocalDate.now().atStartOfDay();
+        long count=repository.countByBusinessAndCreatedAt(id,start,end);
+        log.info("Count is: {}",count);
+        return count;
     }
 
 
