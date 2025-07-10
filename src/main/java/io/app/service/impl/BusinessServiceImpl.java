@@ -5,10 +5,9 @@ import io.app.dto.BusinessDto;
 import io.app.exception.DuplicateResourceException;
 import io.app.exception.ResourceNotFoundException;
 import io.app.exception.UnAuthrizeException;
-import io.app.model.Business;
-import io.app.model.Role;
-import io.app.model.User;
+import io.app.model.*;
 import io.app.repository.BusinessRepository;
+import io.app.repository.SubscriptionRepository;
 import io.app.repository.UserRepository;
 import io.app.service.BusinessService;
 import io.app.service.JwtService;
@@ -24,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,6 +33,7 @@ public class BusinessServiceImpl implements BusinessService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final BusinessRepository repository;
+    private final SubscriptionRepository subscriptionRepository;
 
     @Value("${file.logo}")
     private String logoPath;
@@ -63,6 +64,13 @@ public class BusinessServiceImpl implements BusinessService {
         Business savedBusiness=repository.save(business);
         user.setBusiness(savedBusiness);
         userRepository.save(user);
+        Subscription subscription=Subscription.builder()
+                .purchaseDate(LocalDateTime.now())
+                .expirationDate(LocalDateTime.now().plusDays(31))
+                .subscriptionType(SubscriptionType.STARTER)
+                .business(business)
+                .build();
+        subscriptionRepository.save(subscription);
         return ApiResponse.builder()
                 .status(true)
                 .message("Business Added Successfully")

@@ -1,6 +1,5 @@
 package io.app.service.impl;
 
-import io.app.dto.ApiResponse;
 import io.app.dto.InvoiceDto;
 import io.app.exception.ResourceNotFoundException;
 import io.app.exception.UnAuthrizeException;
@@ -17,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,6 +33,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final UserRepository userRepository;
     private final Helper helper;
     private final BusinessRepository businessRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
 
     @Override
@@ -43,10 +42,15 @@ public class InvoiceServiceImpl implements InvoiceService {
         Business business=userRepository.findBusinessByEmail(extractToken(token))
                 .orElseThrow(()->new ResourceNotFoundException("Business Not Found!"));
 
-        long invoiceCount=getCountOfInvoice(business.getId());
-
-        if ((business.getSubscription()==Subscription.STARTER &&
-            invoiceCount>=100) || (business.getSubscription()==Subscription.PRO && invoiceCount>=1000)){
+        long invoiceCount = getCountOfInvoice(business.getId());
+        Subscription subscription=subscriptionRepository.findByExpirationDateGreaterThanAndBusiness(
+                LocalDateTime.now(),business.getId()
+        );
+        if (subscription==null){
+            throw new UnAuthrizeException("Oops! Your free trial ended");
+        }
+        if ((subscription.getSubscriptionType() == SubscriptionType.STARTER &&
+            invoiceCount>=1) || (subscription.getSubscriptionType() == SubscriptionType.PRO && invoiceCount>=2)){
             throw new UnAuthrizeException("Invoice limit exceeded");
         }
 
