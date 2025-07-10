@@ -6,13 +6,17 @@ import io.app.model.SubscriptionType;
 import io.app.model.Transaction;
 import io.app.service.impl.SubscriptionServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("api/v1/subscription")
 @RequiredArgsConstructor
+@Slf4j
 public class SubscriptionController {
     private final SubscriptionServiceImpl service;
 
@@ -22,6 +26,7 @@ public class SubscriptionController {
             @RequestParam("type") SubscriptionType type,
             @RequestBody Transaction transaction
     ){
+        log.info("Inside the Create Subscription [{}]", LocalDateTime.now());
         return new ResponseEntity<>(service.createSubscription(token,type,transaction), HttpStatus.CREATED);
     }
 

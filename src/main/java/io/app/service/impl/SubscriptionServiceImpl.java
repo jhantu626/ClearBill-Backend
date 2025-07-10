@@ -14,11 +14,14 @@ import io.app.repository.TransactionRepository;
 import io.app.repository.UserRepository;
 import io.app.service.JwtService;
 import io.app.service.SubscriptionService;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SubscriptionServiceImpl implements SubscriptionService {
@@ -63,6 +66,10 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         long businessId=userRepository.findBusinessIdByEmail(extractUserName(authToken))
                 .orElseThrow(()->new ResourceNotFoundException("Business Not found"));
         SubscriptionProjection subscriptionProjection=repository.findCurrentSubscriptionByBusiness(businessId,LocalDateTime.now());
+        if (subscriptionProjection==null){
+            log.info("Empty Subscription for business {}",businessId);
+            throw new ResourceNotFoundException("No Active Plan");
+        }
         return subscriptionProjection;
     }
 
