@@ -1,6 +1,7 @@
 package io.app.controller;
 
 import io.app.dto.ApiResponse;
+import io.app.dto.projection.SubscriptionProjection;
 import io.app.model.SubscriptionType;
 import io.app.model.Transaction;
 import io.app.service.impl.SubscriptionServiceImpl;
@@ -22,5 +23,11 @@ public class SubscriptionController {
             @RequestBody Transaction transaction
     ){
         return new ResponseEntity<>(service.createSubscription(token,type,transaction), HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<SubscriptionProjection>
+        getCurrentSubscription(@RequestHeader("Authorization") String token){
+        return ResponseEntity.ok(service.getCurrentSubscription(token));
     }
 }

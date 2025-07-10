@@ -1,6 +1,8 @@
 package io.app.service.impl;
 
 import io.app.dto.ApiResponse;
+import io.app.dto.projection.SubscriptionProjection;
+import io.app.exception.ResourceNotFoundException;
 import io.app.exception.UnAuthrizeException;
 import io.app.model.Subscription;
 import io.app.model.SubscriptionType;
@@ -54,6 +56,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 .message("Purchased Successfully!")
                 .status(true)
                 .build();
+    }
+
+    @Override
+    public SubscriptionProjection getCurrentSubscription(String authToken) {
+        long businessId=userRepository.findBusinessIdByEmail(extractUserName(authToken))
+                .orElseThrow(()->new ResourceNotFoundException("Business Not found"));
+        SubscriptionProjection subscriptionProjection=repository.findCurrentSubscriptionByBusiness(businessId,LocalDateTime.now());
+        return subscriptionProjection;
     }
 
     private String extractUserName(String token){
